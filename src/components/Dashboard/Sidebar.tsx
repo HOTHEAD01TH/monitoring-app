@@ -74,7 +74,9 @@ const NAV_ITEMS = [
 ];
 
 const Sidebar = () => {
-  const { collapsed } = useSidebar() || { collapsed: false };
+  const sidebar = useSidebar();
+  // Safe access to 'collapsed' property with a default value
+  const collapsed = sidebar?.state === "collapsed";
   const location = useLocation();
   const currentPath = location.pathname;
   
@@ -90,7 +92,7 @@ const Sidebar = () => {
     >
       {/* Logo */}
       <div className={`p-4 flex ${collapsed ? "justify-center" : "justify-start"} items-center border-b border-sidebar-border`}>
-        <div className="h-8 w-8 bg-nr-blue rounded-md"></div>
+        <div className="h-8 w-8 bg-emerald-500 rounded-md"></div>
         {!collapsed && <span className="ml-2 text-lg font-semibold text-white">Observify</span>}
       </div>
       

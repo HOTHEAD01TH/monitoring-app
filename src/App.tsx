@@ -1,8 +1,9 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import LandingPage from "./pages/LandingPage";
@@ -19,35 +20,47 @@ import SettingsPage from "./pages/Dashboard/SettingsPage";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/Dashboard/DashboardLayout";
 
-const queryClient = new QueryClient();
+// Create a new QueryClient instance outside of component
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          
-          {/* Dashboard Routes */}
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="apm" element={<ApmPage />} />
-            <Route path="browser" element={<BrowserMonitoring />} />
-            <Route path="synthetic" element={<SyntheticMonitoring />} />
-            <Route path="websites" element={<WebsitesPage />} />
-            <Route path="logs" element={<LogsPage />} />
-            <Route path="dashboards" element={<DashboardsPage />} />
-            <Route path="alerts" element={<AlertsPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-          </Route>
-          
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  return (
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              
+              {/* Dashboard Routes */}
+              <Route path="/dashboard" element={<DashboardLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="apm" element={<ApmPage />} />
+                <Route path="browser" element={<BrowserMonitoring />} />
+                <Route path="synthetic" element={<SyntheticMonitoring />} />
+                <Route path="websites" element={<WebsitesPage />} />
+                <Route path="logs" element={<LogsPage />} />
+                <Route path="dashboards" element={<DashboardsPage />} />
+                <Route path="alerts" element={<AlertsPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+              </Route>
+              
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+};
 
 export default App;
