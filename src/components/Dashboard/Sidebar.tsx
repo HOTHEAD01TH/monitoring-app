@@ -20,7 +20,8 @@ import {
   BarChart2,
   Bell,
   Settings,
-  Home
+  Home,
+  Globe as Website
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -46,6 +47,11 @@ const NAV_ITEMS = [
     icon: Globe
   },
   { 
+    path: "/dashboard/websites", 
+    label: "Websites", 
+    icon: Website
+  },
+  { 
     path: "/dashboard/logs", 
     label: "Logs", 
     icon: FileText
@@ -68,7 +74,7 @@ const NAV_ITEMS = [
 ];
 
 const Sidebar = () => {
-  const { collapsed } = useSidebar();
+  const { collapsed } = useSidebar() || { collapsed: false };
   const location = useLocation();
   const currentPath = location.pathname;
   
@@ -80,7 +86,7 @@ const Sidebar = () => {
   return (
     <SidebarComponent
       className={`transition-all duration-300 ${collapsed ? "w-14" : "w-60"} bg-sidebar`}
-      collapsible
+      collapsible="icon"
     >
       {/* Logo */}
       <div className={`p-4 flex ${collapsed ? "justify-center" : "justify-start"} items-center border-b border-sidebar-border`}>

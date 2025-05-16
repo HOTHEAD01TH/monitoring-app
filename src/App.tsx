@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import ApmPage from "./pages/Dashboard/ApmPage";
 import BrowserMonitoring from "./pages/Dashboard/BrowserMonitoring";
 import SyntheticMonitoring from "./pages/Dashboard/SyntheticMonitoring";
+import WebsitesPage from "./pages/Dashboard/WebsitesPage";
 import LogsPage from "./pages/Dashboard/LogsPage";
 import DashboardsPage from "./pages/Dashboard/DashboardsPage";
 import AlertsPage from "./pages/Dashboard/AlertsPage";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="apm" element={<ApmPage />} />
             <Route path="browser" element={<BrowserMonitoring />} />
             <Route path="synthetic" element={<SyntheticMonitoring />} />
+            <Route path="websites" element={<WebsitesPage />} />
             <Route path="logs" element={<LogsPage />} />
             <Route path="dashboards" element={<DashboardsPage />} />
             <Route path="alerts" element={<AlertsPage />} />

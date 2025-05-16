@@ -6,10 +6,8 @@ import Header from "./Header";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 const DashboardLayout = () => {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-
   return (
-    <SidebarProvider collapsedWidth={56}>
+    <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">
         <Sidebar />
         <div className="flex-1 flex flex-col">

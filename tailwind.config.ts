@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -63,18 +62,18 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// New Relic inspired colors
+				// Updated New Relic inspired colors with emerald green
 				nr: {
-					blue: '#1763FF',
+					blue: '#10B981', // Changed to emerald green
 					navy: '#1A1F2C',
-					lightblue: '#85B9FF',
-					green: '#1DE9B6',
+					lightblue: '#34D399', // Lighter emerald
+					green: '#10B981', // Emerald green
 					red: '#FF4E00',
 					yellow: '#FFBB00',
 					gray: '#8E9196',
 					lightgray: '#F4F5F5',
-					purple: '#9B6AFF',
-					teal: '#11A5A1'
+					purple: '#059669', // Darker emerald
+					teal: '#10B981' // Emerald green
 				}
 			},
 			borderRadius: {
