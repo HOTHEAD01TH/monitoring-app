@@ -51,11 +51,12 @@ const App = () => {
                 
                 {/* Dashboard Routes */}
                 <Route path="/dashboard" element={<DashboardLayout />}>
-                  <Route index element={<Dashboard />} />
+                  {/* Make websites the main dashboard page */}
+                  <Route index element={<WebsitesPage />} />
                   <Route path="apm" element={<ApmPage />} />
                   <Route path="browser" element={<BrowserMonitoring />} />
                   <Route path="synthetic" element={<SyntheticMonitoring />} />
-                  <Route path="websites" element={<WebsitesPage />} />
+                  <Route path="overview" element={<Dashboard />} />
                   <Route path="logs" element={<LogsPage />} />
                   <Route path="dashboards" element={<DashboardsPage />} />
                   <Route path="alerts" element={<AlertsPage />} />

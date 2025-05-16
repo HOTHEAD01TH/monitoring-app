@@ -27,9 +27,14 @@ import {
 const NAV_ITEMS = [
   { 
     path: "/dashboard", 
-    label: "Overview", 
-    icon: Home, 
+    label: "Websites", 
+    icon: Website, 
     exact: true
+  },
+  { 
+    path: "/dashboard/overview", 
+    label: "Overview", 
+    icon: Home
   },
   { 
     path: "/dashboard/apm", 
@@ -45,11 +50,6 @@ const NAV_ITEMS = [
     path: "/dashboard/synthetic", 
     label: "Synthetic", 
     icon: Globe
-  },
-  { 
-    path: "/dashboard/websites", 
-    label: "Websites", 
-    icon: Website
   },
   { 
     path: "/dashboard/logs", 
