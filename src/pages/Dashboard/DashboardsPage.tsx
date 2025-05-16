@@ -14,7 +14,7 @@ const DashboardsPage = () => {
           <CardTitle>Dashboard Builder</CardTitle>
           <CardDescription>Create and manage custom dashboards</CardDescription>
         </CardHeader>
-        <CardContent className="h-96 flex items-center justify-center">
+        <CardContent className="h-96 flex items-center justify-center bg-card">
           <p className="text-muted-foreground">Dashboard builder content will appear here</p>
         </CardContent>
       </Card>

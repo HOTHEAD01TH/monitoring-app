@@ -14,7 +14,7 @@ const LogsPage = () => {
           <CardTitle>Log Explorer</CardTitle>
           <CardDescription>Search and analyze logs from all your applications</CardDescription>
         </CardHeader>
-        <CardContent className="h-96 flex items-center justify-center">
+        <CardContent className="h-96 flex items-center justify-center bg-card">
           <p className="text-muted-foreground">Log explorer content will appear here</p>
         </CardContent>
       </Card>

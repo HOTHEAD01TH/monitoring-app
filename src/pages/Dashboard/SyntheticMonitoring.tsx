@@ -14,7 +14,7 @@ const SyntheticMonitoring = () => {
           <CardTitle>Synthetic Tests</CardTitle>
           <CardDescription>Monitor critical user flows with automated tests</CardDescription>
         </CardHeader>
-        <CardContent className="h-96 flex items-center justify-center">
+        <CardContent className="h-96 flex items-center justify-center bg-card">
           <p className="text-muted-foreground">Synthetic monitoring content will appear here</p>
         </CardContent>
       </Card>

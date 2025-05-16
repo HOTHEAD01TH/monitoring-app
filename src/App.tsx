@@ -37,7 +37,7 @@ const queryClient = new QueryClient({
 const App = () => {
   return (
     <React.StrictMode>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="system">
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
             <Toaster />
