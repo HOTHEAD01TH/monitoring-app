@@ -101,6 +101,14 @@ const WebsitesPage = () => {
     if (selectedWebsite) {
       loadCheckHistory(selectedWebsite.id);
       loadMetrics(selectedWebsite.id);
+
+      // Refresh data every minute
+      const interval = setInterval(() => {
+        loadCheckHistory(selectedWebsite.id);
+        loadMetrics(selectedWebsite.id);
+      }, 60000); // 60 seconds
+
+      return () => clearInterval(interval);
     }
   }, [selectedWebsite]);
 
@@ -125,7 +133,11 @@ const WebsitesPage = () => {
       const history = await Promise.all(
         checks.map(check => api.getCheckHistory(check.id))
       );
-      setCheckHistory(history.flat());
+      // Sort by timestamp in descending order (newest first)
+      const sortedHistory = history.flat().sort((a, b) => 
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      );
+      setCheckHistory(sortedHistory);
     } catch (error) {
       console.error('Failed to load check history:', error);
     }
@@ -134,10 +146,10 @@ const WebsitesPage = () => {
   const loadMetrics = async (siteId: string) => {
     try {
       const checks = await api.getChecks(siteId);
-      const metricsData = await Promise.all(
-        checks.map(check => api.getCheckMetrics(check.id))
-      );
-      setMetrics(metricsData[0]); // Use first check's metrics for now
+      if (checks.length > 0) {
+        const metricsData = await api.getCheckMetrics(checks[0].id);
+        setMetrics(metricsData);
+      }
     } catch (error) {
       console.error('Failed to load metrics:', error);
     }

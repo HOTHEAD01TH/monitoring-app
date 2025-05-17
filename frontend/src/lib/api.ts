@@ -248,7 +248,7 @@ class ApiClient {
   }
 
   async getCheckMetrics(checkId: string): Promise<CheckMetrics> {
-    const response = await fetch(`${API_URL}/api/checks/${checkId}/metrics`, {
+    const response = await fetch(`${API_URL}/checks/${checkId}/metrics`, {
       headers: this.headers,
     })
 
