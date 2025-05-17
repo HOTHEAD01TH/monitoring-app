@@ -91,6 +91,7 @@ const WebsitesPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [checkHistory, setCheckHistory] = useState<any[]>([]);
   const [metrics, setMetrics] = useState<any>(null);
+  const [timeRange, setTimeRange] = useState<'1h' | '30m' | '10m' | '1m'>('1h');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -110,7 +111,7 @@ const WebsitesPage = () => {
 
       return () => clearInterval(interval);
     }
-  }, [selectedWebsite]);
+  }, [selectedWebsite, timeRange]);
 
   const loadWebsites = async () => {
     try {
@@ -138,8 +139,31 @@ const WebsitesPage = () => {
         return;
       }
 
-      // Get history for the first check
-      const history = await api.getCheckHistory(checks[0].id);
+      // Calculate time range
+      const now = new Date();
+      let startDate = new Date();
+      switch (timeRange) {
+        case '1h':
+          startDate.setHours(now.getHours() - 1);
+          break;
+        case '30m':
+          startDate.setMinutes(now.getMinutes() - 30);
+          break;
+        case '10m':
+          startDate.setMinutes(now.getMinutes() - 10);
+          break;
+        case '1m':
+          startDate.setMinutes(now.getMinutes() - 1);
+          break;
+      }
+
+      // Get history for the first check with time range
+      const history = await api.getCheckHistory(
+        checks[0].id,
+        100,
+        startDate.toISOString(),
+        now.toISOString()
+      );
       console.log('Check history:', history);
       
       // Sort by timestamp in descending order (newest first)
@@ -384,8 +408,42 @@ const WebsitesPage = () => {
               {/* Response Time Chart */}
               <Card className="col-span-1 bg-card">
                 <CardHeader>
-                  <CardTitle className="text-lg">Response Time</CardTitle>
-                  <CardDescription>Response time over time</CardDescription>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="text-lg">Response Time</CardTitle>
+                      <CardDescription>Response time over time</CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={timeRange === '1h' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTimeRange('1h')}
+                      >
+                        1h
+                      </Button>
+                      <Button
+                        variant={timeRange === '30m' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTimeRange('30m')}
+                      >
+                        30m
+                      </Button>
+                      <Button
+                        variant={timeRange === '10m' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTimeRange('10m')}
+                      >
+                        10m
+                      </Button>
+                      <Button
+                        variant={timeRange === '1m' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTimeRange('1m')}
+                      >
+                        1m
+                      </Button>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -428,8 +486,42 @@ const WebsitesPage = () => {
               {/* Error Rate Chart */}
               <Card className="col-span-1 bg-card">
                 <CardHeader>
-                  <CardTitle className="text-lg">Error Rate</CardTitle>
-                  <CardDescription>Errors over time</CardDescription>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="text-lg">Error Rate</CardTitle>
+                      <CardDescription>Errors over time</CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={timeRange === '1h' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTimeRange('1h')}
+                      >
+                        1h
+                      </Button>
+                      <Button
+                        variant={timeRange === '30m' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTimeRange('30m')}
+                      >
+                        30m
+                      </Button>
+                      <Button
+                        variant={timeRange === '10m' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTimeRange('10m')}
+                      >
+                        10m
+                      </Button>
+                      <Button
+                        variant={timeRange === '1m' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setTimeRange('1m')}
+                      >
+                        1m
+                      </Button>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
