@@ -209,17 +209,23 @@ checks.get('/:id/history', async (c) => {
           gte: new Date(startDate),
           lte: new Date(endDate),
         },
-      } : {}),
+      } : {
+        // Default to last 24 hours if no date range provided
+        timestamp: {
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        },
+      }),
     }
 
     const results = await prisma.checkResult.findMany({
       where,
       orderBy: {
-        timestamp: 'desc',
+        timestamp: 'asc',
       },
       take: limit,
     })
 
+    console.log(`Found ${results.length} check results for check ${id}`)
     return c.json(results)
   } catch (error) {
     console.error('Failed to fetch check history:', error)

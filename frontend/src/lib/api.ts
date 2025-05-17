@@ -244,7 +244,7 @@ class ApiClient {
     }
 
     const data = await response.json()
-    return z.array(responseSchema).parse(data)
+    return data
   }
 
   async getCheckMetrics(checkId: string): Promise<CheckMetrics> {

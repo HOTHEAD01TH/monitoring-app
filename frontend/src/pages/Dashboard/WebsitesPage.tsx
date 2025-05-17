@@ -129,14 +129,25 @@ const WebsitesPage = () => {
 
   const loadCheckHistory = async (siteId: string) => {
     try {
+      console.log('Loading check history for site:', siteId);
       const checks = await api.getChecks(siteId);
-      const history = await Promise.all(
-        checks.map(check => api.getCheckHistory(check.id))
-      );
+      console.log('Found checks:', checks);
+      
+      if (checks.length === 0) {
+        console.log('No checks found for site');
+        return;
+      }
+
+      // Get history for the first check
+      const history = await api.getCheckHistory(checks[0].id);
+      console.log('Check history:', history);
+      
       // Sort by timestamp in descending order (newest first)
-      const sortedHistory = history.flat().sort((a, b) => 
+      const sortedHistory = history.sort((a, b) => 
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
+      console.log('Sorted history:', sortedHistory);
+      
       setCheckHistory(sortedHistory);
     } catch (error) {
       console.error('Failed to load check history:', error);
@@ -145,9 +156,13 @@ const WebsitesPage = () => {
 
   const loadMetrics = async (siteId: string) => {
     try {
+      console.log('Loading metrics for site:', siteId);
       const checks = await api.getChecks(siteId);
+      console.log('Found checks for metrics:', checks);
+      
       if (checks.length > 0) {
         const metricsData = await api.getCheckMetrics(checks[0].id);
+        console.log('Metrics data:', metricsData);
         setMetrics(metricsData);
       }
     } catch (error) {
@@ -271,16 +286,26 @@ const WebsitesPage = () => {
 
   // Dashboard Overview
   if (selectedWebsite) {
-    const performanceData = checkHistory.map(check => ({
-      name: new Date(check.timestamp).toLocaleTimeString(),
-      value: check.latency || 0,
-    }));
+    console.log('Current check history:', checkHistory);
+    
+    // Format data for response time graph
+    const performanceData = checkHistory
+      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+      .map(check => ({
+        name: new Date(check.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        value: check.latency || 0,
+      }));
+    console.log('Performance data for graph:', performanceData);
 
-    const errorRateData = checkHistory.map(check => ({
-      name: new Date(check.timestamp).toLocaleTimeString(),
-      errors: check.status !== "200" ? 1 : 0,
-      requests: 1,
-    }));
+    // Format data for error rate graph
+    const errorRateData = checkHistory
+      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+      .map(check => ({
+        name: new Date(check.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        errors: check.status !== "200" ? 1 : 0,
+        requests: 1,
+      }));
+    console.log('Error rate data for graph:', errorRateData);
 
     return (
       <div className="space-y-6">
@@ -374,16 +399,26 @@ const WebsitesPage = () => {
                       }}
                     >
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                      <YAxis tick={{ fontSize: 12 }} />
-                      <Tooltip />
+                      <XAxis 
+                        dataKey="name" 
+                        tick={{ fontSize: 12 }}
+                        interval="preserveStartEnd"
+                      />
+                      <YAxis 
+                        tick={{ fontSize: 12 }}
+                        label={{ value: 'ms', angle: -90, position: 'insideLeft' }}
+                      />
+                      <Tooltip 
+                        formatter={(value) => [`${value}ms`, 'Response Time']}
+                        labelFormatter={(label) => `Time: ${label}`}
+                      />
                       <Line
                         type="monotone"
                         dataKey="value"
                         stroke="#1763FF"
                         strokeWidth={2}
-                        dot={{ r: 0 }}
-                        activeDot={{ r: 6 }}
+                        dot={{ r: 2 }}
+                        activeDot={{ r: 4 }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -408,10 +443,25 @@ const WebsitesPage = () => {
                       }}
                     >
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                      <YAxis tick={{ fontSize: 12 }} />
-                      <Tooltip />
-                      <Bar dataKey="errors" fill="#FF4E00" barSize={20} radius={[4, 4, 0, 0]} />
+                      <XAxis 
+                        dataKey="name" 
+                        tick={{ fontSize: 12 }}
+                        interval="preserveStartEnd"
+                      />
+                      <YAxis 
+                        tick={{ fontSize: 12 }}
+                        label={{ value: 'Errors', angle: -90, position: 'insideLeft' }}
+                      />
+                      <Tooltip 
+                        formatter={(value) => [`${value}`, 'Errors']}
+                        labelFormatter={(label) => `Time: ${label}`}
+                      />
+                      <Bar 
+                        dataKey="errors" 
+                        fill="#FF4E00" 
+                        barSize={20} 
+                        radius={[4, 4, 0, 0]} 
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
