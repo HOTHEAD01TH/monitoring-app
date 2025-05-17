@@ -1,78 +1,122 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Activity, AlertCircle, Clock, TrendingUp, TrendingDown, CheckCircle, XCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-// Mock data for charts
-const performanceData = [
-  { name: "12AM", value: 65 },
-  { name: "2AM", value: 59 },
-  { name: "4AM", value: 80 },
-  { name: "6AM", value: 81 },
-  { name: "8AM", value: 56 },
-  { name: "10AM", value: 55 },
-  { name: "12PM", value: 40 },
-  { name: "2PM", value: 78 },
-  { name: "4PM", value: 90 },
-  { name: "6PM", value: 95 },
-  { name: "8PM", value: 82 },
-  { name: "10PM", value: 68 },
-];
-
-const errorRateData = [
-  { name: "12AM", errors: 2, requests: 120 },
-  { name: "2AM", errors: 3, requests: 110 },
-  { name: "4AM", errors: 1, requests: 130 },
-  { name: "6AM", errors: 7, requests: 150 },
-  { name: "8AM", errors: 4, requests: 170 },
-  { name: "10AM", errors: 5, requests: 190 },
-  { name: "12PM", errors: 6, requests: 210 },
-  { name: "2PM", errors: 2, requests: 170 },
-  { name: "4PM", errors: 1, requests: 160 },
-  { name: "6PM", errors: 3, requests: 180 },
-  { name: "8PM", errors: 4, requests: 140 },
-  { name: "10PM", errors: 3, requests: 130 },
-];
-
-const services = [
-  { name: "API Gateway", status: "healthy", apdex: 0.98, responseTime: "45ms", throughput: "240 rpm" },
-  { name: "User Service", status: "healthy", apdex: 0.92, responseTime: "120ms", throughput: "180 rpm" },
-  { name: "Payment Processor", status: "degraded", apdex: 0.76, responseTime: "350ms", throughput: "95 rpm" },
-  { name: "Authentication", status: "healthy", apdex: 0.95, responseTime: "85ms", throughput: "210 rpm" },
-  { name: "Notification Service", status: "critical", apdex: 0.65, responseTime: "890ms", throughput: "45 rpm" },
-  { name: "Data Processing", status: "healthy", apdex: 0.97, responseTime: "78ms", throughput: "120 rpm" },
-];
+import { api } from "@/lib/api";
+import { useToast } from "@/components/ui/use-toast";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [isLoading, setIsLoading] = useState(true);
+  const [sites, setSites] = useState<any[]>([]);
+  const [checkHistory, setCheckHistory] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState<any>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    loadData();
+    // Refresh data every minute
+    const interval = setInterval(loadData, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      // Load all sites
+      const sitesData = await api.getSites();
+      setSites(sitesData);
+
+      // Load check history for all sites
+      const allCheckHistory: any[] = [];
+      for (const site of sitesData) {
+        const checks = await api.getChecks(site.id);
+        if (checks.length > 0) {
+          const history = await api.getCheckHistory(checks[0].id, 100);
+          allCheckHistory.push(...history);
+        }
+      }
+
+      // Sort check history by timestamp
+      const sortedHistory = allCheckHistory.sort((a, b) => 
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      );
+      setCheckHistory(sortedHistory);
+
+      // Calculate overall metrics
+      const totalChecks = sortedHistory.length;
+      const successfulChecks = sortedHistory.filter(check => check.status === "200").length;
+      const uptime = totalChecks > 0 ? (successfulChecks / totalChecks) * 100 : 0;
+      const avgResponse = totalChecks > 0 
+        ? sortedHistory.reduce((acc, check) => acc + (check.latency || 0), 0) / totalChecks 
+        : 0;
+      const errorRate = totalChecks > 0 
+        ? ((totalChecks - successfulChecks) / totalChecks) * 100 
+        : 0;
+
+      setMetrics({
+        uptime,
+        avgResponse,
+        errorRate,
+        totalChecks,
+        successfulChecks
+      });
+
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load dashboard data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "healthy": return "bg-green-500";
-      case "degraded": return "bg-yellow-500";
-      case "critical": return "bg-red-500";
+      case "ACTIVE": return "bg-green-500";
+      case "MAINTENANCE": return "bg-yellow-500";
+      case "INACTIVE": return "bg-red-500";
       default: return "bg-gray-500";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "healthy": return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "degraded": return <AlertCircle className="h-4 w-4 text-yellow-500" />;
-      case "critical": return <XCircle className="h-4 w-4 text-red-500" />;
+      case "ACTIVE": return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case "MAINTENANCE": return <AlertCircle className="h-4 w-4 text-yellow-500" />;
+      case "INACTIVE": return <XCircle className="h-4 w-4 text-red-500" />;
       default: return null;
     }
   };
 
-  const getApdexClass = (score: number) => {
-    if (score >= 0.94) return "text-green-600";
-    if (score >= 0.85) return "text-yellow-600";
-    return "text-red-600";
-  };
+  // Format data for response time graph
+  const performanceData = checkHistory
+    .map(check => ({
+      name: new Date(check.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      value: check.latency || 0,
+    }));
+
+  // Format data for error rate graph
+  const errorRateData = checkHistory
+    .map(check => ({
+      name: new Date(check.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      errors: check.status !== "200" ? 1 : 0,
+      requests: 1,
+    }));
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -100,28 +144,9 @@ const Dashboard = () => {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">99.98%</div>
+            <div className="text-2xl font-bold">{metrics?.uptime?.toFixed(2) || 0}%</div>
             <p className="text-xs text-muted-foreground">
-              <span className="inline-flex items-center text-green-600">
-                <TrendingUp className="mr-1 h-3 w-3" /> +0.1%
-              </span>
-              {" "}vs last week
-            </p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Apdex Score</CardTitle>
-            <div className="h-4 w-4 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs">A</div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">0.92</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="inline-flex items-center text-yellow-600">
-                <TrendingDown className="mr-1 h-3 w-3" /> -0.03
-              </span>
-              {" "}vs last week
+              Based on {metrics?.totalChecks || 0} checks
             </p>
           </CardContent>
         </Card>
@@ -132,12 +157,9 @@ const Dashboard = () => {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">132ms</div>
+            <div className="text-2xl font-bold">{metrics?.avgResponse?.toFixed(0) || 0}ms</div>
             <p className="text-xs text-muted-foreground">
-              <span className="inline-flex items-center text-green-600">
-                <TrendingUp className="mr-1 h-3 w-3" /> -15ms
-              </span>
-              {" "}vs last week
+              Average response time
             </p>
           </CardContent>
         </Card>
@@ -148,12 +170,24 @@ const Dashboard = () => {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2.4%</div>
+            <div className="text-2xl font-bold">{metrics?.errorRate?.toFixed(2) || 0}%</div>
             <p className="text-xs text-muted-foreground">
-              <span className="inline-flex items-center text-red-600">
-                <TrendingUp className="mr-1 h-3 w-3" /> +1.1%
-              </span>
-              {" "}vs last week
+              {metrics?.totalChecks - metrics?.successfulChecks || 0} errors in {metrics?.totalChecks || 0} checks
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Sites</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {sites.filter(site => site.status === 'ACTIVE').length}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Out of {sites.length} total sites
             </p>
           </CardContent>
         </Card>
@@ -173,7 +207,7 @@ const Dashboard = () => {
             <Card className="col-span-1">
               <CardHeader>
                 <CardTitle className="text-lg">Response Time</CardTitle>
-                <CardDescription>Average response time over the past 24 hours</CardDescription>
+                <CardDescription>Average response time over time</CardDescription>
               </CardHeader>
               <CardContent className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -188,15 +222,21 @@ const Dashboard = () => {
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      label={{ value: 'ms', angle: -90, position: 'insideLeft' }}
+                    />
+                    <Tooltip 
+                      formatter={(value) => [`${value}ms`, 'Response Time']}
+                      labelFormatter={(label) => `Time: ${label}`}
+                    />
                     <Line
                       type="monotone"
                       dataKey="value"
                       stroke="#1763FF"
                       strokeWidth={2}
-                      dot={{ r: 0 }}
-                      activeDot={{ r: 6 }}
+                      dot={{ r: 2 }}
+                      activeDot={{ r: 4 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -207,7 +247,7 @@ const Dashboard = () => {
             <Card className="col-span-1">
               <CardHeader>
                 <CardTitle className="text-lg">Error Rate</CardTitle>
-                <CardDescription>Application errors over the past 24 hours</CardDescription>
+                <CardDescription>Application errors over time</CardDescription>
               </CardHeader>
               <CardContent className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -222,8 +262,14 @@ const Dashboard = () => {
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      label={{ value: 'Errors', angle: -90, position: 'insideLeft' }}
+                    />
+                    <Tooltip 
+                      formatter={(value) => [`${value}`, 'Errors']}
+                      labelFormatter={(label) => `Time: ${label}`}
+                    />
                     <Bar dataKey="errors" fill="#FF4E00" barSize={20} radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -231,42 +277,42 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          {/* Services Table */}
+          {/* Sites Table */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Monitored Services</CardTitle>
-              <CardDescription>Performance metrics for your application services</CardDescription>
+              <CardTitle className="text-lg">Monitored Sites</CardTitle>
+              <CardDescription>Status and performance of your monitored sites</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b text-left">
-                      <th className="px-4 py-3 font-medium text-muted-foreground">Service</th>
+                      <th className="px-4 py-3 font-medium text-muted-foreground">Site</th>
                       <th className="px-4 py-3 font-medium text-muted-foreground">Status</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground">Apdex</th>
+                      <th className="px-4 py-3 font-medium text-muted-foreground">Last Check</th>
                       <th className="px-4 py-3 font-medium text-muted-foreground">Response Time</th>
-                      <th className="px-4 py-3 font-medium text-muted-foreground">Throughput</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {services.map((service, i) => (
+                    {sites.map((site, i) => (
                       <tr 
                         key={i} 
                         className={`border-b hover:bg-muted/50 ${i % 2 === 0 ? 'bg-muted/20' : ''}`}
                       >
-                        <td className="px-4 py-3 font-medium">{service.name}</td>
+                        <td className="px-4 py-3 font-medium">{site.name}</td>
                         <td className="px-4 py-3">
                           <div className="flex items-center">
-                            <span className={`h-2 w-2 rounded-full ${getStatusColor(service.status)} mr-2`}></span>
-                            <span className="capitalize">{service.status}</span>
+                            <span className={`h-2 w-2 rounded-full ${getStatusColor(site.status)} mr-2`}></span>
+                            <span className="capitalize">{site.status}</span>
                           </div>
                         </td>
-                        <td className={`px-4 py-3 ${getApdexClass(service.apdex)}`}>
-                          {service.apdex.toFixed(2)}
+                        <td className="px-4 py-3">
+                          {new Date(site.updatedAt).toLocaleString()}
                         </td>
-                        <td className="px-4 py-3">{service.responseTime}</td>
-                        <td className="px-4 py-3">{service.throughput}</td>
+                        <td className="px-4 py-3">
+                          {site.responseTime || 'N/A'}ms
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -275,8 +321,8 @@ const Dashboard = () => {
             </CardContent>
             <CardFooter>
               <Button variant="ghost" size="sm" className="ml-auto" asChild>
-                <a href="#">
-                  View all services <ArrowRight className="ml-2 h-4 w-4" />
+                <a href="/websites">
+                  View all sites <ArrowRight className="ml-2 h-4 w-4" />
                 </a>
               </Button>
             </CardFooter>
