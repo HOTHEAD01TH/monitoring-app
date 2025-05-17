@@ -14,9 +14,23 @@ import { authMiddleware } from './lib/auth'
 
 const app = new Hono()
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': 'https://observify.pages.dev',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Max-Age': '86400',
+};
+
 // Middleware
 app.use('*', logger())
-app.use('*', cors())
+app.use('*', cors({
+  origin: ['http://localhost:5173', 'https://observify.pages.dev'],
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+  exposeHeaders: ['Content-Length', 'X-Kuma-Revision'],
+  maxAge: 600,
+  credentials: true,
+}))
 
 // Health check
 app.get('/', (c) => c.json({ status: 'ok' }))

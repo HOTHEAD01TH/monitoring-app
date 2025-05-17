@@ -4,14 +4,11 @@
   "main": "src/index.ts",
   "compatibility_date": "2025-03-12",
   "compatibility_flags": ["nodejs_compat"],
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "pulse_view_symphony",
-      "database_id": "pulse-view-symphony"
-    }
-  ],
   "triggers": {
     "crons": ["*/5 * * * *"]
+  },
+  "vars": {
+    "DATABASE_URL": "prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiMWQ2MDcxZmYtYjgzZC00ZDE1LWIwODUtZDBiNjA1M2JkZTZmIiwidGVuYW50X2lkIjoiYmE5NDUxMDAwYjMzYWJkODliM2RlZmMxOTMwNjdhODQ3ODA3MDUzZWI4MGIyYzdmMmQyODEyMWU0NzMwYWE3MCIsImludGVybmFsX3NlY3JldCI6IjI3ZmRhZmMwLWQ5OTgtNDc1OC1iZDBhLTZkNjlhYjhkOThkMSJ9.-7mbOd3lmgh8xhVw1YTsZpx8tG48OnpiHqxDrcIn8tw",
+    "JWT_SECRET": "your-secure-secret-key"
   }
 }

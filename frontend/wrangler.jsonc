@@ -1,0 +1,37 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pulse-view-symphony-frontend",
+  "compatibility_date": "2025-03-12",
+  "compatibility_flags": ["nodejs_compat"],
+  "site": {
+    "bucket": "./dist"
+  },
+  "build": {
+    "command": "npm run build",
+    "output": "dist",
+    "environment": {
+      "NODE_VERSION": "18",
+      "VITE_API_URL": "https://pulse-view-symphony.observify.workers.dev/api"
+    }
+  },
+  "routes": [
+    {
+      "pattern": "/*",
+      "script": "index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "from": "/signup",
+      "to": "/index.html"
+    },
+    {
+      "from": "/login",
+      "to": "/index.html"
+    },
+    {
+      "from": "/dashboard/*",
+      "to": "/index.html"
+    }
+  ]
+} 

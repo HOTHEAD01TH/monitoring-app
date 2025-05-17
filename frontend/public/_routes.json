@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": ["/assets/*", "/images/*"],
+  "routes": [
+    {
+      "pattern": "/signup",
+      "script": "index.html"
+    },
+    {
+      "pattern": "/login",
+      "script": "index.html"
+    },
+    {
+      "pattern": "/dashboard/*",
+      "script": "index.html"
+    }
+  ]
+} 

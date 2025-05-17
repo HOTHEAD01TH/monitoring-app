@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { api, Site, Check, Response } from '../lib/api'
+import { api, Site, Check, CheckResult } from '../lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
@@ -18,7 +18,7 @@ export default function SiteDetails() {
   const { id } = useParams<{ id: string }>()
   const [site, setSite] = useState<Site | null>(null)
   const [checks, setChecks] = useState<Check[]>([])
-  const [responses, setResponses] = useState<Response[]>([])
+  const [responses, setResponses] = useState<CheckResult[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {

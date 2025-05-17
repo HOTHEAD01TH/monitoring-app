@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -32,12 +31,12 @@ const LandingPage = () => {
           </nav>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Link to="/signin">
+            <Link to="/login">
               <Button variant="ghost" size="sm">
                 Sign in
               </Button>
             </Link>
-            <Link to="/signup" className="hidden sm:block">
+            <Link to="/register" className="hidden sm:block">
               <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700">
                 Get Started
               </Button>
@@ -47,9 +46,9 @@ const LandingPage = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="px-4 py-16 md:py-28 lg:py-36 bg-background">
-        <div className="container mx-auto px-4 md:px-6 flex flex-col items-center text-center space-y-8">
-          <div className="inline-flex items-center rounded-full border px-4 py-1.5 mb-4 text-sm">
+      <section className="px-4 py-4 md:py-9 lg:py-17 bg-background">
+        <div className="container mx-auto px-4 md:px-6 flex flex-col items-center text-center space-y-6">
+          <div className="inline-flex items-center rounded-full border px-4 py-1.5 text-sm">
             <span className="bg-emerald-500 rounded-full w-2 h-2 mr-2"></span>
             <span className="text-sm font-medium">New Feature: Website Uptime Monitoring</span>
           </div>
@@ -63,7 +62,7 @@ const LandingPage = () => {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
-            <Link to="/signup">
+            <Link to="/register">
               <Button size="lg" className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 hover:shadow-lg transition-all">
                 Start for free <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -77,7 +76,7 @@ const LandingPage = () => {
           <div className="relative mx-auto aspect-video overflow-hidden rounded-xl border shadow-xl max-w-4xl mt-12 bg-gradient-to-b from-emerald-500/5 to-transparent p-1">
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-emerald-500/20 to-transparent rounded-xl"></div>
             <img 
-              src="https://lovable.dev/opengraph-image-p98pqg.png" 
+              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
               alt="Observify Dashboard Preview" 
               className="w-full object-cover rounded-lg"
             />
@@ -283,7 +282,7 @@ const LandingPage = () => {
                   <span>Basic alerts</span>
                 </li>
               </ul>
-              <Link to="/signup">
+              <Link to="/register">
                 <Button className="w-full" variant="outline">Start for free</Button>
               </Link>
             </div>
@@ -323,7 +322,7 @@ const LandingPage = () => {
                   <span>Custom dashboards</span>
                 </li>
               </ul>
-              <Link to="/signup">
+              <Link to="/register">
                 <Button className="w-full bg-emerald-500 hover:bg-emerald-600">Get started</Button>
               </Link>
             </div>
@@ -359,7 +358,7 @@ const LandingPage = () => {
                   <span>Custom integrations</span>
                 </li>
               </ul>
-              <Link to="/signup">
+              <Link to="/register">
                 <Button className="w-full" variant="outline">Contact sales</Button>
               </Link>
             </div>
@@ -434,7 +433,7 @@ const LandingPage = () => {
             Join thousands of developers and teams who trust Observify for their monitoring needs.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/signup">
+            <Link to="/register">
               <Button size="lg" variant="secondary">
                 Start for free
               </Button>

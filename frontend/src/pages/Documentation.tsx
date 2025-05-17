@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronRight, Search, Copy, Check, ExternalLink } from "lucide-react";
@@ -26,12 +25,12 @@ const Documentation = () => {
             <span className="text-lg font-semibold">Observify</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
-            <Link to="/signin">
+            <Link to="/login">
               <Button variant="ghost" size="sm">
                 Sign in
               </Button>
             </Link>
-            <Link to="/signup">
+            <Link to="/register">
               <Button size="sm">Get Started</Button>
             </Link>
           </div>
