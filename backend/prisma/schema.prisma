@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiMWQ2MDcxZmYtYjgzZC00ZDE1LWIwODUtZDBiNjA1M2JkZTZmIiwidGVuYW50X2lkIjoiYmE5NDUxMDAwYjMzYWJkODliM2RlZmMxOTMwNjdhODQ3ODA3MDUzZWI4MGIyYzdmMmQyODEyMWU0NzMwYWE3MCIsImludGVybmFsX3NlY3JldCI6IjI3ZmRhZmMwLWQ5OTgtNDc1OC1iZDBhLTZkNjlhYjhkOThkMSJ9.-7mbOd3lmgh8xhVw1YTsZpx8tG48OnpiHqxDrcIn8tw"
+}
+
+// User model for authentication
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // Hashed password
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sites     Site[]   // Relation to sites
+}
+
+// Site configuration model
+model Site {
+  id          String   @id @default(cuid())
+  name        String
+  url         String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  status      Status   @default(ACTIVE)
+  userId      String   // Foreign key to User
+  user        User     @relation(fields: [userId], references: [id])
+  checks      Check[]  // Relation to monitoring checks
+}
+
+// Monitoring check model
+model Check {
+  id        String   @id @default(cuid())
+  siteId    String
+  type      CheckType
+  interval  Int      @default(300) // Default 5 minutes
+  status    String   @default("pending")
+  response  String?
+  latency   Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  results   CheckResult[]
+
+  @@index([siteId])
+}
+
+model CheckResult {
+  id        String   @id @default(cuid())
+  checkId   String
+  status    String
+  latency   Int?
+  response  String?
+  timestamp DateTime @default(now())
+  check     Check    @relation(fields: [checkId], references: [id], onDelete: Cascade)
+
+  @@index([checkId])
+  @@index([timestamp])
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+enum CheckType {
+  HTTP
+  HTTPS
+  PING
+  TCP
+  DNS
+} 
